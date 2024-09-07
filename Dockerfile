@@ -1,15 +1,15 @@
-FROM node:20
+# FROM node:20
 
-WORKDIR app/
+# WORKDIR app/
 
-COPY package*.json ./
+# COPY package*.json ./
 
-RUN npm install
+# RUN npm install
 
-COPY . .
+# COPY . .
 
-RUN npm install pm2 -g
+# RUN npm install pm2 -g
 
-EXPOSE 8004
+# EXPOSE 8004
 
-RUN node index.js
+# RUN node index.js
