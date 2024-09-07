@@ -8,10 +8,8 @@ RUN npm install
 
 COPY . .
 
-RUN npm install typescript -g
-
-RUN tsc
-
 RUN npm install pm2 -g
 
 EXPOSE 8004
+
+RUN pm2 index.js --port 8004
