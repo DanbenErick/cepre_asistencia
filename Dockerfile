@@ -12,4 +12,4 @@ RUN npm install pm2 -g
 
 EXPOSE 8004
 
-RUN pm2 index.js
+RUN node index.js
