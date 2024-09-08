@@ -74,6 +74,45 @@ app.post('/cepre-salida', async(req, res) => {
   }
 });
 
+app.get('/cepre-asistencia-entrada-hoy', async(req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM asistencia_entrada WHERE DATE(FECHA) = CURDATE()')
+    if (result.affectedRows) {
+        res.status(200).json({ message: 'Ingreso registrado', result });
+    } else {
+        res.status(400).json({ message: 'Datos inválidos' });
+    }
+  }catch(e) {
+    console.error(e);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+})
+app.get('/cepre-asistencia-entrada-mes', async(req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM asistencia_entrada WHERE MONTH(FECHA) = MONTH(CURDATE()) AND YEAR(FECHA) = YEAR(CURDATE())')
+    if (result.affectedRows) {
+        res.status(200).json({ message: 'Ingreso registrado', result });
+    } else {
+        res.status(400).json({ message: 'Datos inválidos' });
+    }
+  }catch(e) {
+    console.error(e);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+})
+app.get('/cepre-asistencia-entrada-total', async(req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM asistencia_entrada')
+    if (result.affectedRows) {
+        res.status(200).json({ message: 'Ingreso registrado', result });
+    } else {
+        res.status(400).json({ message: 'Datos inválidos' });
+    }
+  }catch(e) {
+    console.error(e);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+})
 
 
 app.get('/', async(req, res) => {
