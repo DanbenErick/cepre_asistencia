@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors')
 const port = 8004;
+const bcrypt = require('bcrypt');
 const pool = require('./db');
 
 
@@ -19,12 +20,17 @@ app.post('/cepre-login', async (req, res) => {
     console.log(req.body)
     try {
       const [rows] = await pool.query('SELECT * FROM responsables WHERE USUARIO = ? ', [usuario]);
-      console.log(rows)
-      if (rows.length > 0) {
-          res.status(200).json({ message: 'Login exitoso', uuid: rows[0].UUID, id: rows[0].ID });
-      } else {
-          res.status(400).json({ message: 'Usuario o contraseña inválidos' });
-      }
+      console.log("rows", rows)
+      await bcrypt.compare(password, rows[0].PASSWORD, (err, result) => {
+        if (err) {
+          console.error(err);
+        } else if (result) {
+            console.log('La contraseña es correcta');
+            res.status(200).json({ ok: true, message: 'Login exitoso', uuid: rows[0].UUID, id: rows[0].ID });
+        } else {
+          res.status(400).json({ ok: false, message: 'Usuario o contraseña inválidos' });
+        }
+      })
   } catch (error) {
       res.status(500).json({ message: 'Error en el servidor' });
   }
