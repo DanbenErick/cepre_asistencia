@@ -18,7 +18,7 @@ app.post('/cepre-login', async (req, res) => {
     const { usuario, password } = req.body;
     console.log(req.body)
     try {
-      const [rows] = await pool.query('SELECT * FROM responsables WHERE USUARIO = ? AND PASSWORD = ?', [usuario, password]);
+      const [rows] = await pool.query('SELECT * FROM responsables WHERE USUARIO = ? ', [usuario]);
       console.log(rows)
       if (rows.length > 0) {
           res.status(200).json({ message: 'Login exitoso', uuid: rows[0].UUID, id: rows[0].ID });
