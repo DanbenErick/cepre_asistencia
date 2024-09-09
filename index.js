@@ -4,7 +4,8 @@ const cors = require('cors')
 const port = 8004;
 const bcrypt = require('bcrypt');
 const pool = require('./db');
-
+const cron = require('node-cron');
+const axios = require('axios');
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -114,12 +115,49 @@ app.get('/cepre-asistencia-entrada-total', async(req, res) => {
   }
 })
 
+app.get('/cepre-obtener-docentes', async(req, res) => {
+  try {
+    const [result] = await pool.query('SELECT * FROM docentes')
+    if (result.affectedRows) {
+        res.status(200).json({ message: 'Obtención exitosa', data: result });
+    } else {
+        res.status(400).json({ message: 'No hay docentes registrados' });
+    }
+  }catch(e) {
+    console.error(e);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+})
 
 app.get('/', async(req, res) => {
   const [rows] = await pool.query('SELECT * FROM responsables');
   res.status(200).json(rows)
   return rows
 })
+
+
+// Programar un cron job para hacer ping a la API
+// cron.schedule('*/5 * * * *', () => {
+//   axios.get('http://localhost:8004') // Reemplaza con la URL de tu API en producción si es diferente
+//       .then(response => {
+//           console.log('Ping exitoso:', response.status);
+//       })
+//       .catch(error => {
+//           console.error('Error en el ping:', error);
+//       });
+// });
+
+// Hacer ping a la API cada 20 segundos
+const pingInterval = 20000; // 20 segundos
+setInterval(() => {
+    axios.get('http://localhost:8004') // Reemplaza con la URL de tu API en producción si es diferente
+        .then(response => {
+            console.log('Ping exitoso:', response.status);
+        })
+        .catch(error => {
+            console.error('Error en el ping:', error);
+        });
+}, pingInterval);
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
