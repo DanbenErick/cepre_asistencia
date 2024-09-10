@@ -118,7 +118,8 @@ app.get('/cepre-asistencia-entrada-total', async(req, res) => {
 app.get('/cepre-obtener-docentes', async(req, res) => {
   try {
     const [result] = await pool.query('SELECT * FROM docentes')
-    if (result.affectedRows) {
+    
+    if (result.length > 0) {
         res.status(200).json({ message: 'Obtención exitosa', data: result });
     } else {
         res.status(400).json({ message: 'No hay docentes registrados' });
@@ -129,8 +130,45 @@ app.get('/cepre-obtener-docentes', async(req, res) => {
   }
 })
 
+
+app.get('/cepre-obtener-asisntencia-estudiante', async(req, res) => {
+  try {
+    const [rows_estudiante] = await pool.query('SELECT * FROM estudiantes WHERE DNI = ?', [req.query.DNI])
+    const [rows_entrada] = await pool.query("SELECT COUNT(*) AS ASISTENCIA FROM asistencia_entrada WHERE HORA < '08:01' AND DNI = ?", [req.query.DNI])
+    const [rows_salida] = await pool.query("SELECT COUNT(*) AS ASISTENCIA FROM asistencia_entrada WHERE HORA > '08:01' AND DNI = ?", [req.query.DNI])
+    console.log(rows_entrada, rows_salida)
+    if (rows_entrada.length > 0 && rows_salida.length > 0 ) {
+      res.status(200).json({ ok:true, message: 'Obtención exitosa', data: { NOMBRE_COMPLETO: rows_estudiante[0].NOMBRES, TEMPRANO: rows_entrada[0].ASISTENCIA, TARDE: rows_salida[0].ASISTENCIA } });
+    }else {
+      res.status(400).json({ ok: false, message: 'No hay asistencia registrada' });
+    }
+  }catch(error) {
+    res.status(500).json({ ok: false, message: 'Error del servidor' })
+  }
+})
+
+app.post('/cepre-solicitar-permiso', async(req, res) => {
+  try {
+    const { DNI, SUSTENTO } = req.body
+    const [resp] = await pool.query('INSERT INTO permisos (DNI, SUSTENTO) VALUES (?, ?)', [DNI, SUSTENTO])
+    if(resp.affectedRows) {
+      res.status(200).json({ ok: true, message: 'Se solicito correctamente el permiso'})
+    }else {
+      res.status(400).json({ ok: false, message: 'No se pudo solicitar el permiso' });
+    }
+  }catch(error) {
+    console.log(error);
+    // Manejo del error de duplicado
+    if (error.code === 'ER_DUP_ENTRY') {
+      res.status(409).json({ ok: false, message: 'El permiso ya ha sido solicitado anteriormente para este DNI.' });
+    } else {
+      res.status(500).json({ ok: false, message: 'Error del servidor' });
+    }
+  }
+})
+
 app.get('/', async(req, res) => {
-  const [rows] = await pool.query('SELECT * FROM responsables');
+  const [rows] = await pool.query('SELECT * FROM responsables WHERE ID = 111');
   res.status(200).json(rows)
   return rows
 })
