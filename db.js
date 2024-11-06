@@ -1,6 +1,6 @@
 const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
+const credetials = {
     host: '143.110.151.82',
     // host: 'localhost',
     user: 'cepre',
@@ -9,7 +9,8 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
+}
+const pool = mysql.createPool(credetials);
 
 async function testConnection() {
     try {
