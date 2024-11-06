@@ -2,7 +2,7 @@ const express = require('express');
 const ExcelJS = require('exceljs');
 const app = express();
 const cors = require('cors')
-const port = 8004;
+const port = 8007;
 const bcrypt = require('bcrypt');
 const pool = require('./db');
 const cron = require('node-cron');
@@ -340,7 +340,7 @@ app.get('/', async(req, res) => {
 // Hacer ping a la API cada 20 segundos
 const pingInterval = 20000; // 20 segundos
 setInterval(() => {
-    axios.get('http://localhost:8004') // Reemplaza con la URL de tu API en producción si es diferente
+    axios.get('http://localhost:8007') // Reemplaza con la URL de tu API en producción si es diferente
         .then(response => {
             console.log('Ping exitoso:', response.status);
         })
